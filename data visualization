@@ -1,0 +1,131 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import binned_statistic
+import seaborn as sns
+import mpl_toolkits
+import os
+
+os.chdir('C:/Users/zanna/OneDrive/Documents/MSIS-5193')
+directory= 'C:/Users/zanna/OneDrive/Documents/MSIS-5193'
+
+data1 = pd.read_table('taxonomy.txt')
+
+#Plot Petals, Internode, and Sepal against Fruit
+
+data1.plot.scatter(x='Petals', y='Fruit')
+plt.title('Petals vs. Fruit')
+plt.show()
+
+###Shows strange relationship between petals and fruit, the relationship is not constant. 
+
+data1.plot.scatter(x='Internode', y='Fruit')
+plt.title('Internode vs. Fruit')
+plt.show()
+
+###Shows strange relationship between internode and fruit, the relationship is not constant. 
+
+data1.plot.scatter(x='Sepal', y='Fruit')
+plt.title('Sepal vs. Fruit')
+plt.show()
+
+###Shows strange relationship between sepal and fruit, the relationship is not constant. 
+
+
+#Generate histograms for Petals, Internode, Sepal, and Fruit
+
+data1['Petals'].plot.hist(alpha=0.5)
+plt.title('Petals')
+plt.show()
+
+##Slightly skewed to the right
+
+
+data1['Internode'].plot.hist(alpha=0.5)
+plt.title('Internode')
+plt.show()
+##there is no particular distribution
+
+data1['Sepal'].plot.hist(alpha=0.5)
+plt.title('Sepal')
+plt.show()
+##there is no particular distribution
+
+data1['Fruit'].plot.hist(alpha=0.5)
+plt.title('Fruit')
+plt.show()
+###there is no particular distribution
+
+
+
+bin_means,bin_edges,binnum = binned_statistic(data1['Bract'], 
+                                               data1['Bract'], 
+                                               statistic='mean', 
+                                               bins=5)
+
+
+bin_interval = [17.04141579, 17.6324009 , 18.223386  , 18.81437111, 19.40535621, 20.0]
+
+binlabels = ['BractI', 'BractII', 'BractIII', 'BractIV', 'BractV']
+
+Bract_Cat = pd.cut(data1['Bract'], bin_interval, right=False, retbins=False, labels=binlabels)
+
+Bract_Cat.name = 'Bract_cat'
+
+data1 = data1.join(pd.DataFrame(Bract_Cat))
+
+data1[['Bract', 'Bract_cat']].sort_values(by='Bract')
+
+##Generate a boxplot with Fruit and Bract_Cat
+
+data1.boxplot(column='Fruit', by='Bract_cat')
+
+##The 1st group, BractI , has the largest spread, the largest standard deviation. 
+#This would indicate the Bract change in this group leads to greater changes in the fruit
+#no outliers are shown, then the maximum value (or minimum at the bottom) is shown
+#The median is not centered in the box; it is placed closer to the bottom. The range of higher fruit is more numerous than the range of lower fruit.
+
+
+##The 2nd group, BractII , has the largest spread, the largest standard deviation. 
+#The median is not centered in the box; it is placed a bit closer to the upper part. 
+#The top whisker is shorter than the bottom whisker.
+#The range of higher fruit is a bit lesser numerous than the range of lower fruit.
+
+
+##The 3rd group, BractIII , has the 2nd largest spread, the largest standard deviation.
+#This would indicate the Bract change in this group leads to greater changes in the fruit 
+#The median is not centered in the box; it is placed a bit closer to the bottom. 
+#The top whisker is longer than the bottom whisker.
+#The range of higher fruit is a bit more numerous than the range of lower fruit.
+
+
+##The 4th group, BractIV , median is not centered in the box; it is placed a closer to the bottom. 
+#The range of higher fruit is a more numerous than the range of lower fruit.
+
+
+##The 5th group, BractV , median is not centered in the box; it is placed a bit closer to the bottom. 
+#The top whisker is longer than the bottom whisker.
+#The range of higher fruit is a bit more numerous than the range of lower fruit.
+
+
+###Generate a bar chart for Taxon and Fruit. 
+data11= pd.DataFrame()
+data11= data1.groupby(['Taxon'])
+data11.first()
+
+
+
+data2 = {'Fruit': [7.876151, 7.883368, 7.830394, 7.139198], 
+        'Taxon':['I','II','III','IV']}
+
+data2=pd.DataFrame(data2)
+data2.plot.bar(x='Taxon', y='Fruit')
+
+
+
+
+data3 = {'Fruit': [18.203409, 17.903430, 17.686430], 
+        'Bract':['BractI','BractII','BractIII']}
+
+data3=pd.DataFrame(data3)
+data3.plot.bar(x='Bract', y='Fruit')
